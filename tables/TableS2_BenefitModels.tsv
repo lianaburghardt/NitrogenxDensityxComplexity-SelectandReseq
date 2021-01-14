@@ -1,0 +1,17 @@
+"Host"	"Term"	"Df"	"SumSq"	"Fstat"	"Pvalue"
+"All"	"Host"	1	0.449	382.19	0
+"All"	"Density"	1	0	0.02	0.881
+"All"	"Nitrogen"	1	0	0.05	0.824
+"All"	"Host:Density"	1	0.041	35.16	0
+"All"	"Host:Nitrogen"	1	0.005	4.58	0.038
+"All"	"Density:Nitrogen"	1	0.005	3.96	0.054
+"All"	"Host:Density:Nitrogen"	1	0	0.38	0.541
+"All"	"Residuals"	40	0.047	NA	NA
+"All"	"Density"	1	0.022	36.23	0
+"All"	"Nitrogen"	1	0.003	5.48	0.03
+"All"	"Density:Nitrogen"	1	0.001	1.84	0.19
+"All"	"Residuals"	20	0.012	NA	NA
+"All"	"Density"	1	0.02	11.2	0.003
+"All"	"Nitrogen"	1	0.002	1.23	0.28
+"All"	"Density:Nitrogen"	1	0.004	2.28	0.147
+"All"	"Residuals"	20	0.035	NA	NA
