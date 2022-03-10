@@ -19,7 +19,7 @@ mycols<-c("#d73027","#fc8d59","#4575b4","#91bfdb")
 # Host is one of two genotypes: A17 or R108
 # Treatments: X (high density, No Nitrogen), L (low density, No Nitrogen), N (high density + Nitrogen), LN (low density + Nitrogen)
 
-freqsC68 = read.csv('../Data/2018-10-19_core_strain_freqs/C68freq.tsv',
+freqsC68 = read.csv('data/2018-10-19_core_strain_freqs/C68freq.tsv',
                     sep='\t', header=TRUE, as.is=TRUE)
 
 # Store initial frequencies for standardizing and remove from data set
@@ -42,10 +42,10 @@ trts$Host_trt<-factor(trts$Host_trt)
 trts$Host_trt_rep<-paste(trts$Host_trt,trts$rep,sep="_")
 
 #### RDA, Diversity, and Predicted Benefit (Figure 2) ####
-
 # Calculate relative fitness #
-mine<-as.matrix(freqs[,-1])
-mine<-log2(mine/initial_means)
+#mine<-as.matrix(freqs[,-1])
+#mine<-log2(mine/initial_means)
+mine<-log2(mapply("/", freqs[,-1], initial_means))
 mine[mine< (-8)]<- (-8)
 fitness<-data.frame(trts,mine)  #### Relative fitness values with metadata
 freqs<-data.frame(trts,as.matrix(freqs[,-1]))  ### Raw frequency values w/ metadata
@@ -101,11 +101,11 @@ RDN<-data.frame(Dataset="R108",Term=row.names(modelRDN),
                 Pvalue=round(modelRDN$`Pr(>F)`,3),
                 Radj=round(as.numeric(RsquareAdj(rdaRDN)[2]),3))
 
-write.table(x = rbind(HDN,HD,ADN,RDN),file = "../tables/Table1_RDAModelResults.tsv",sep="\t",row.names=FALSE)
+write.table(x = rbind(HDN,HD,ADN,RDN),file = "tables/Table1_RDAModelResultsnew.tsv",sep="\t",row.names=FALSE)
 
 # Figure 2a: Visualize the RDA results
 
-pdf(file="../figures/Figure2a_RDAPlot.pdf",width = 4,height=4,useDingbats = FALSE)
+pdf(file="figures/Figure2a_RDAPlot.pdf",width = 4,height=4,useDingbats = FALSE)
 scale<-1
 par(mfrow=c(1,1),mar=c(3, 3, 2.1, 1))
 rdaplot <- ordiplot(rdaHDN, display=c("wa"),cex=.5,cex.axis=.8,cex.lab=.9, tck=.02,mgp=c(1.7,.5,0),type="none",
@@ -116,7 +116,7 @@ ordiellipse(rdaHDN, fitness$Host_trt, kind="se", conf=0.95, lwd=2,label =FALSE,d
 ordispider(rdaHDN, fitness$Host_trt, lwd=1,label =TRUE,col=paste(mycols),cex=.5)
 dev.off()
 
-pdf(file="../figures/FigureS4b_RDAPlotR108.pdf",width = 4,height=4,useDingbats = FALSE)
+pdf(file="figures/FigureS4b_RDAPlotR108.pdf",width = 4,height=4,useDingbats = FALSE)
 par(mfrow=c(1,1),mar=c(3, 3, 2.1, 1))
 rdaplot <- ordiplot(rdaRDN, display=c("wa"),cex=.5,cex.axis=.8,cex.lab=.9, tck=.02,mgp=c(1.7,.5,0),type="none",
                     xlim=c(-3,2),ylim=c(-4,4),scaling=scale, xlab=paste("RDA 1 (",round(summary(rdaRDN)$cont$importance[1,1],2),"% var.)",sep=""), 
@@ -126,7 +126,7 @@ ordiellipse(rdaRDN, fitness_R108$Host_trt, kind="se", conf=0.95, lwd=2,label =FA
 ordispider(rdaRDN, fitness_R108$Host_trt, lwd=1,label =TRUE,col=paste(mycols),cex=.5)
 dev.off()
 
-pdf(file="../figures/FigureS4b_RDAPlotA17.pdf",width = 4,height=4,useDingbats = FALSE)
+pdf(file="figures/FigureS4b_RDAPlotA17.pdf",width = 4,height=4,useDingbats = FALSE)
 par(mfrow=c(1,1),mar=c(3, 3, 2.1, 1))
 rdaplot <- ordiplot(rdaADN, display=c("wa"),cex=.5,cex.axis=.8,cex.lab=.9, tck=.02,mgp=c(1.7,.5,0),type="none",
                     xlim=c(-2,2),ylim=c(4,-4),scaling=scale, xlab=paste("RDA 1 (",round(summary(rdaADN)$cont$importance[1,1],2),"% var.)",sep=""), 
@@ -142,12 +142,12 @@ dev.off()
 mydiver<-data.frame(freqs[,1:9],renyi(as.matrix(freqs[,-1:-9])))
 
 # Run an ANOVA
-write.table(x = anova(lm(X1~Host*Density*Nitrogen,data=mydiver)),file="../tables/TableS1_Diversity_BothHosts.tsv",sep="\t",row.names = TRUE,col.names = NA)
-write.table(x = anova(lm(X1~Density*Nitrogen,data=mydiver[mydiver$Host=="A17",])),file="../tables/TableS1_Diversity_A17Host.tsv",sep="\t",row.names = TRUE,col.names = NA)
-write.table(x = anova(lm(X1~Density*Nitrogen,data=mydiver[mydiver$Host=="R108",])),file="../tables/TableS1_Diversity_R108Host.tsv",sep="\t",row.names = TRUE,col.names = NA)
+write.table(x = anova(lm(X1~Host*Density*Nitrogen,data=mydiver)),file="tables/TableS1_Diversity_BothHosts.tsv",sep="\t",row.names = TRUE,col.names = NA)
+write.table(x = anova(lm(X1~Density*Nitrogen,data=mydiver[mydiver$Host=="A17",])),file="tables/TableS1_Diversity_A17Host.tsv",sep="\t",row.names = TRUE,col.names = NA)
+write.table(x = anova(lm(X1~Density*Nitrogen,data=mydiver[mydiver$Host=="R108",])),file="tables/TableS1_Diversity_R108Host.tsv",sep="\t",row.names = TRUE,col.names = NA)
 
 # Make Diversity Figure
-pdf(file = "../figures/Figure2c_DiversityBoxplot.pdf",height=4,width=4)
+pdf(file = "figures/Figure2c_DiversityBoxplot.pdf",height=4,width=4)
 boxplot(mydiver$X1~mydiver$Host_trt,col=rep(mycols,2),ylab="Shannon's Diversity",xlab="",lty=1,axes=FALSE,outline=FALSE)# Shannons diversity
 axis(side = 1,at = c(1:8),labels = paste(levels(mydiver$Host_trt)),las=2,cex.axis=.75)
 axis(side = 2 )
@@ -159,7 +159,7 @@ dev.off()
 #### Predicted Plant Benefit analysis (Figure 2c and Table S3) ####
 
 # Load in data (this is the same data used in original Burghardt 2018 PNAS paper)
-benefit<-read.csv(file = "../data/SingleStrain_phenotype_summary.tsv",sep = '\t')
+benefit<-read.csv(file = "data/SingleStrain_phenotype_summary.tsv",sep = '\t')
 benefit$strain<-paste("X",benefit$strain,sep="")
 mystrains<-colnames(fitness)[-1:-9]
 
@@ -193,7 +193,7 @@ Predsize[Predsize$Host=="A17",]$Benefit <- Predsize[Predsize$Host=="A17",]$A17
 Predsize[Predsize$Host=="R108",]$Benefit <- Predsize[Predsize$Host=="R108",]$R108
 
 # Create a Boxplot for Figure 2c
-pdf("../figures/Figure2c_PredictedPlantBenefit.pdf",width = 4,height=4,useDingbats = FALSE)
+pdf("figures/Figure2c_PredictedPlantBenefit.pdf",width = 4,height=4,useDingbats = FALSE)
 boxplot(Predsize$Benefit~Predsize$Host_trt,col=rep(mycols,2),xlab="Treatment",ylab="Predicted Benefit",ylim=c(.25,.75),outline=FALSE,axes=FALSE,lty=1)
 axis(side = 1,at = c(1:8),labels = paste(levels(Predsize$Host_trt)),las=2,cex.axis=.5)
 axis(side = 2 )
@@ -226,17 +226,17 @@ RDN<-data.frame(Host="All",Term=row.names(modelRDN),
                 Fstat=round(modelRDN$`F value`,2),
                 Pvalue=round(modelRDN$`Pr(>F)`,3))
 
-write.table(x = rbind(HDN,ADN,RDN),file = "../tables/TableS2_BenefitModels.tsv",sep="\t",row.names=FALSE)
+write.table(x = rbind(HDN,ADN,RDN),file = "tables/TableS2_BenefitModels.tsv",sep="\t",row.names=FALSE)
 
 ####  Load in Data for Plant Pheotypic Trait Analysis ####
 # Graphs for Nod Num, weight, Veg, Root
 # ANOVA with complexity as continuous variable H*C
 
 #Load in Phenotypic Data and organize
-harvest<-read.csv(file="../data/R108_SR3_HarvestData_Final.txt",sep="\t",header = TRUE)
+harvest<-read.csv(file="data/R108_SR3_HarvestData_Final.txt",sep="\t",header = TRUE)
 harvest$Plants_harvested<-harvest$Plant_num
 all<-harvest[,c(1:10,17,11:16)]
-A17<-read.csv(file="../data/A17_SR3_HarvestData_Final.txt",sep="\t",header = TRUE)
+A17<-read.csv(file="data/A17_SR3_HarvestData_Final.txt",sep="\t",header = TRUE)
 all<-rbind(all,A17)
 all$Treatment<- factor(x = all$Treatment,levels = c("X","N","L","LN"),labels=c("HiD","HiD+N","LoD","LoD+N"))
 all$Host<-all$Plant_genotype
@@ -298,14 +298,14 @@ sub<-data.frame(Terms=row.names(modNN.A),DF=modNN.A$Df,
                  RS.A.SS=round(modRS.A$`Sum Sq`,1),RS.A.P=round(modRS.A$`Pr(>F)`,3),
                  RS.R.SS=round(modRS.R$`Sum Sq`,1),RS.R.P=round(modRS.R$`Pr(>F)`,3))
                
-write.table(x = cbind(full),file = "../tables/TableS3_PlantPhenotypes_FullModels.tsv",sep="\t",row.names=FALSE)
-write.table(x = cbind(sub),file = "../tables/TableS3_PlantPhenotypes_HostSubsetModels.tsv",sep="\t",row.names=FALSE)
+write.table(x = cbind(full),file = "tables/TableS3_PlantPhenotypes_FullModels.tsv",sep="\t",row.names=FALSE)
+write.table(x = cbind(sub),file = "tables/TableS3_PlantPhenotypes_HostSubsetModels.tsv",sep="\t",row.names=FALSE)
 
 # Graph the Nodule traits
 Pheno_HND$Trt<-paste(Pheno_HND$Host,Pheno_HND$Treatment,sep="_")
 Pheno_HND$Trt<-factor(Pheno_HND$Trt,levels=c("A17_HiD","A17_HiD+N","A17_LoD","A17_LoD+N","R108_HiD","R108_HiD+N","R108_LoD","R108_LoD+N"))
 
-pdf(file = "../figures/Figure3_NoduleBoxplot_N*D.pdf",height=5,width=5,useDingbats = FALSE)
+pdf(file = "figures/Figure3_NoduleBoxplot_N*D.pdf",height=5,width=5,useDingbats = FALSE)
 boxplot(Nodnum_per_plant~Trt,col=mycols[c(1:4,1:4)],xlab="Treatment",ylab="Nodule number per plant",outline=FALSE,axes=FALSE,lty=1, data=Pheno_HND)
 axis(side = 1,at = c(1:8),labels = paste(levels(Pheno_HND$Trt)))
 axis(side = 2 )
@@ -326,7 +326,7 @@ points(Pheno_HND$Nodweight_per_plant*1000~jitter(as.numeric(Pheno_HND$Trt)),col=
 
 dev.off()
 
-pdf(file = "../figures/FigureS2a_PlantBoxplot_N*D.pdf",height=5,width=6.5, useDingbats = FALSE)
+pdf(file = "figures/FigureS2a_PlantBoxplot_N*D.pdf",height=5,width=6.5, useDingbats = FALSE)
 boxplot(Nod_num~Trt,col=mycols[c(1:4,1:4)],xlab="Treatment",ylab="Nodule number sampled",outline=FALSE,axes=FALSE,lty=1, data=Pheno_HND)
 axis(side = 1,at = c(1:8),labels = c(paste(levels(Pheno_HND$Treatment)),paste(levels(Pheno_HND$Treatment))))
 axis(side = 2 )
@@ -335,7 +335,7 @@ points(Pheno_HND$Nod_num~jitter(as.numeric(Pheno_HND$Trt)),col=c("black"), pch=1
 text(x=c(2.5,6.5),y=c(550,550),labels=c("A17","R108"))
 dev.off()
 
-pdf(file = "../figures/FigureS7_PlantBoxplot_N*D.pdf",height=5,width=6.5, useDingbats = FALSE)
+pdf(file = "figures/FigureS7_PlantBoxplot_N*D.pdf",height=5,width=6.5, useDingbats = FALSE)
 boxplot(Veg_per_plant~Trt,col=mycols[c(1:4,1:4)],xlab="Treatment",ylab="Veg biomass per plant (g)",outline=FALSE,axes=FALSE,lty=1, data=Pheno_HND)
 axis(side = 1,at = c(1:8),labels = c(paste(levels(Pheno_HND$Treatment)),paste(levels(Pheno_HND$Treatment))))
 axis(side = 2 )
@@ -394,14 +394,14 @@ full<-data.frame(Terms=row.names(modNN),DF=modNN$Df,
                  R.SS=round(modR$`Sum Sq`,3),R.P=round(modR$`Pr(>F)`,3),
                  RS.SS=round(modRS$`Sum Sq`,3),RS.P=round(modRS$`Pr(>F)`,3))
 
-write.table(x = cbind(full),file = "../tables/TableS4_CommunityComplexityModels.tsv",sep="\t",row.names=FALSE)
+write.table(x = cbind(full),file = "tables/TableS4_CommunityComplexityModels.tsv",sep="\t",row.names=FALSE)
 
 #Figure Graphs
 mycols.x<-rev(c("#ffffcc","#c2e699","#78c679","#238443"))
 Pheno_Complexity$Community<-factor(Pheno_Complexity$Community,levels=c("C68","C8","C3","HK","HM","MK"),labels= c("C68","C8","C3","H:K","M:H","M:K"))
 Pheno_Complexity$Trt<-factor(paste(Pheno_Complexity$Host,Pheno_Complexity$Community,sep="_"),levels=c("A17_C68",  "A17_C8","A17_C3", "A17_H:K" ,  "A17_M:H" ,  "A17_M:K" ,  "R108_C68",  "R108_C8",
                                                                                                       "R108_C3",  "R108_H:K" , "R108_M:H",  "R108_M:K"))
-pdf(file = "../figures/FigureS8_ComplexityPhenotypes.pdf",height=5,width=7)
+pdf(file = "figures/FigureS8_ComplexityPhenotypes.pdf",height=5,width=7)
   boxplot(Nodnum_per_plant~Trt,col=mycols.x[c(1:4,4,4,1:4,4,4)],xlab="Community",ylab="Nodule per plant",outline=FALSE,axes=FALSE,lty=1, data=Pheno_Complexity)
     axis(side = 1,at = c(1:12),labels = c(paste(levels(Pheno_Complexity$Community)),paste(levels(Pheno_Complexity$Community))))
     axis(side = 2 )
@@ -446,7 +446,7 @@ pdf(file = "../figures/FigureS8_ComplexityPhenotypes.pdf",height=5,width=7)
     abline(h=1,col="grey")
 dev.off()
 
-pdf(file = "../figures/FigureS2b_ComplexityNodulesSampled.pdf",height=5,width=7)
+pdf(file = "figures/FigureS2b_ComplexityNodulesSampled.pdf",height=5,width=7)
 boxplot(Nod_num~Trt,col=mycols.x[c(1:4,4,4,1:4,4,4)],xlab="Community",ylab="Nodule pool",outline=FALSE,axes=FALSE,lty=1, data=Pheno_Complexity)
 axis(side = 1,at = c(1:12),labels = c(paste(levels(Pheno_Complexity$Community)),paste(levels(Pheno_Complexity$Community))))
 axis(side = 2 )
@@ -462,14 +462,14 @@ library(scales)
 library(Hmisc)
 
 #Load in the Data
-freqsHM = read.csv('../data/2018-10-19_core_strain_freqs/HMfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
-freqsKH = read.csv('../data/2018-10-19_core_strain_freqs/KHfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
-freqsMK = read.csv('../data/2018-10-19_core_strain_freqs/MKfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
+freqsHM = read.csv('data/2018-10-19_core_strain_freqs/HMfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
+freqsKH = read.csv('data/2018-10-19_core_strain_freqs/KHfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
+freqsMK = read.csv('data/2018-10-19_core_strain_freqs/MKfreq.tsv',sep='\t', header=TRUE, as.is=TRUE)
 
-freqsC3 = read.csv('../data/2018-10-19_core_strain_freqs/C3freq.tsv',sep='\t', header=TRUE, as.is=TRUE)
+freqsC3 = read.csv('data/2018-10-19_core_strain_freqs/C3freq.tsv',sep='\t', header=TRUE, as.is=TRUE)
 freqsC3<-freqsC3[grep(pattern = "C3",x = freqsC3$pool),]
 
-freqsC8 = read.csv('../data/2018-10-19_core_strain_freqs/C8freq.tsv',sep='\t', header=TRUE, as.is=TRUE)
+freqsC8 = read.csv('data/2018-10-19_core_strain_freqs/C8freq.tsv',sep='\t', header=TRUE, as.is=TRUE)
 freqsC8sub3<-freqsC8[,colnames(freqsC8) %in% colnames(freqsC3)]
 freqsC68sub<-rbind(freqsC68[grep(pattern = "A17_X",x = freqsC68$pool),], freqsC68[grep(pattern = "R108_X",x = freqsC68$pool),],freqsC68[grep(pattern = "initial",x = freqsC68$pool),])
 
@@ -509,7 +509,7 @@ FrequencyAll<-function(freqs,title,mycols) {
     theme_minimal()
 }
 
-pdf(file="../figures/FigureS6_RelativeAbundanceAcrossComplexity.pdf",height = 4,width=3,fonts = "Helvetica",useDingbats = FALSE)
+pdf(file="figures/FigureS6_RelativeAbundanceAcrossComplexity.pdf",height = 4,width=3,fonts = "Helvetica",useDingbats = FALSE)
 FrequencyAll(freqsHM, "HM Pairwise")
 FrequencyAll(freqsKH,"KH Pairwise")
 FrequencyAll(freqsMK, "MK Pairwise")
@@ -544,7 +544,7 @@ mycols<-mycols[match(myorder,mycols$Strain),]
 mdfr$Strain<-factor(mdfr$Strain, levels = c(myorder))
 
 #Create Figure S3
-pdf(file="../figures/FigureS3_NoduleComposition_N*D.pdf",height = 6,width=7,fonts = "Helvetica",useDingbats = FALSE)
+pdf(file="figures/FigureS3_NoduleComposition_N*D.pdf",height = 6,width=7,fonts = "Helvetica",useDingbats = FALSE)
   ggplot(mdfr, aes(Environment, value, fill = Strain)) +
     geom_bar(position = "fill", stat = "identity")+
     scale_y_continuous(labels = percent)+
@@ -572,7 +572,7 @@ C3<-merge(C3,mycols,by="Strain",all.x = TRUE)
   points(jitter(C8$R108_C68)~C8$R108_C8,pch=17,col=paste(C8$colors))
 
 
-pdf(file="../figures/Figure4b_rankC8inC68.pdf", height=5,width=5,useDingbats = FALSE)
+pdf(file="figures/Figure4b_rankC8inC68.pdf", height=5,width=5,useDingbats = FALSE)
   plot(jitter(C8$A17_C68,factor=.5)~C8$A17_C8,pch=19,col=paste(C8$colors),xlab="Rank in C8",ylab="Rank in C68",axes=FALSE)
     points(jitter(C8$R108_C68,factor=.5)~C8$R108_C8,pch=17,col=paste(C8$colors))  
     axis(side = 1,at = c(1:8))
@@ -580,7 +580,7 @@ pdf(file="../figures/Figure4b_rankC8inC68.pdf", height=5,width=5,useDingbats = F
     legend("topleft",legend=c("A17","R108"),pch = c(19,17))
 dev.off()
 
-pdf(file="../figures/Figure4a_rankC3inC68.pdf", height=4,width=4,useDingbats = FALSE)
+pdf(file="figures/Figure4a_rankC3inC68.pdf", height=4,width=4,useDingbats = FALSE)
   plot(jitter(C3$A17_C68,factor=.5)~C3$A17_C3,pch=19,col=paste(C3$colors),xlab="Rank in C3",ylab="Rank in C68",axes=FALSE)
     points(jitter(C3$R108_C68,factor=.5)~C3$R108_C3,pch=17,col=paste(C3$colors))  
     axis(side = 1,at = c(1:3))
@@ -591,14 +591,14 @@ dev.off()
 
 ##### Initial Community CFU's (Figure S1) #####
 library(plyr)
-Initial<-read.csv(file="../data/ColonyCounts_InitialCommunities_2Feb2018.txt",sep="\t",header = TRUE)
+Initial<-read.csv(file="data/ColonyCounts_InitialCommunities_2Feb2018.txt",sep="\t",header = TRUE)
 Initial<-Initial[!Initial$Strain %in% c("SM1021"),]
 
 meso.i<-ddply(Initial, .(Strain, Letter,Dilution), summarize,
               mean = mean(NumColonies))
 meso.i$Strain<-factor(meso.i$Strain,levels=c("C68","C8","C3","HK","HM","MK","C68L"))
 
-pdf(file="../figures/FigureS1_InitialCommunityCFU.pdf",height=3,width=4, useDingbats = FALSE)
+pdf(file="figures/FigureS1_InitialCommunityCFU.pdf",height=3,width=4, useDingbats = FALSE)
 ggplot(meso.i,aes(x=Strain,y=mean*10^Dilution,color=Strain))+
   geom_point()+
   scale_y_log10()+
@@ -611,7 +611,7 @@ dev.off()
 library("FactoMineR")
 library("factoextra")
 
-pdf(file="../figures/FigureS5_PCAFitness.pdf",height=3,width=4, useDingbats = FALSE)
+pdf(file="figures/FigureS5_PCAFitness.pdf",height=3,width=4, useDingbats = FALSE)
 myPCA<-PCA(fitness[,-1:-9], scale.unit = FALSE, graph = FALSE)
 x<-fviz_pca_ind(myPCA, geom.ind = "point", col.ind = fitness$Host_trt, axes = c(1,2),
                 addEllipses = TRUE, ellipse.type = "confidence",
@@ -633,7 +633,7 @@ dev.off()
 
 #### Calculating Sequencing Coverages cited in methods of Manuscript ####
 
-coverage<-read.table(file="../data/winter_2018_pools_USDA1106_read_counts_2019-09-24.tsv",header = TRUE,sep = "\t")
+coverage<-read.table(file="data/winter_2018_pools_USDA1106_read_counts_2019-09-24.tsv",header = TRUE,sep = "\t")
 
 coverage_A17_Eco<-rbind(coverage[grep(pattern = "A17_X",x = coverage$pool),], coverage[grep(pattern = "A17_N",x = coverage$pool),], coverage[grep(pattern = "A17_L",x = coverage$pool),])
 coverage_A17_Eco<-coverage_A17_Eco[-grep(pattern = "_D",x = coverage_A17_Eco$pool),]
@@ -644,3 +644,86 @@ coverage_R108_Eco<-coverage_R108_Eco[-grep(pattern = "_D",x = coverage_R108_Eco$
 summary(c((coverage_A17_Eco$aln_n_reads*125)/6716230,(coverage_A17_Eco$aln_n_reads*125)/6716230))
 
 summary(c(coverage_A17_Eco$raw_n_pairs,coverage_A17_Eco$raw_n_pairs))
+
+######## Heatmap + Phylogeny ########
+
+### Phylogeny Ordered Heatmap @ 24 wks
+
+# Prepare the data-Calculate median strain fitness for each treatment @ 24wks and create it into a single dataframe with a column for each treatment and a row for each strain. 
+
+fitness_long<- as_tibble(fitness) %>% pivot_longer(cols = USDA1157:X1719,names_to= "strain",values_to = "fitness")
+
+fitness_med<- fitness_long %>% group_by(Host_trt,strain) %>% summarise_if(is.numeric,median) %>% pivot_wider(names_from = Host_trt,values_from = fitness)
+fitness_med$strain<- as.character(fitness_med$strain)
+fitness_med$strain <- gsub("X","",fitness_med$strain) # get rid of the X's in front of the strains
+fitness_med$strain <- gsub("USDA","",fitness_med$strain) # get rid of the USDA's in front of the strains
+
+
+
+#library (gplots)
+library(ape)
+## Read in the tree file created by Brendan
+tree = read.tree('data/tree.nw')
+
+### there are some discrepancies in strain names that need to be fixed...
+tree$tip.label[tree$tip.label=="KH46c"]<-"KH46C"
+tree$tip.label[tree$tip.label=="HM006-1"]<-"HM006.1"
+tree$tip.label[tree$tip.label=="KH35c"]<-"KH35C"
+tree$tip.label[tree$tip.label=="USDA1021"]<-"1021"
+tree$tip.label[tree$tip.label=="USDA1157"]<-"1157"
+
+# load in teh function for making a heatmap with the tree #
+heatmap.phylo <- function(x, Rowp, Colp, ...) {
+  l = length(seq(-8, 3.9, 0.1))
+  pal = colorRampPalette(c('#2166ac','#92c5de', '#f7f7f7', '#b2182b'))(l)
+  row_order = Rowp$tip.label[Rowp$edge[Rowp$edge[, 2] <= Ntip(Rowp), 2]] 
+  col_order = Colp$tip.label[Colp$edge[Colp$edge[, 2] <= Ntip(Colp), 2]] 
+  x <- x[row_order, col_order]
+  xl <- c(0.5, ncol(x)+0.5)
+  yl <- c(0.5, nrow(x)+0.5)
+  layout(matrix(c(0,1,0, 2,3,4, 0,5,0), nrow=3, byrow=TRUE),
+         width=c(3.5,    4.5, 1),
+         height=c(0.2, 3, 0.18))
+  par(mar=rep(0,4))
+  plot(Colp, direction="downwards", show.tip.label=FALSE,
+       xaxs="i", x.lim=xl)
+  par(mar=rep(0,4))
+  plot(Rowp, direction="rightwards", show.tip.label=FALSE, 
+       yaxs="i", y.lim=yl)
+  lpp = .PlotPhyloEnv$last_plot.phylo 
+  segments(lpp$xx[1:Ntip(Rowp)], lpp$yy[1:Ntip(Rowp)], par('usr')[2],
+           lpp$yy[1:Ntip(Rowp)], lty=3, col='grey50')
+  par(mar=rep(0,4), xpd=TRUE)
+  image((1:ncol(x))-0.5, (1:nrow(x))-0.5, t(x), col=pal,
+        xaxs="i", yaxs="i", axes=FALSE, xlab="",ylab="",breaks=seq(-8,4,0.1))
+  par(mar=rep(0,4))
+  plot(NA, axes=FALSE, ylab="", xlab="", yaxs="i", xlim=c(0,2), ylim=yl)
+  text(rep(0,nrow(x)),1:nrow(x), row_order, pos=4, family='Helvetica',
+       cex=1, xpd=NA)
+  par(mar=rep(0,4))
+  plot(NA, axes=FALSE, ylab="", xlab="", xaxs="i", ylim=c(0,2), xlim=xl)
+  text(1:ncol(x),rep(2,ncol(x)), col_order, srt=90, adj=c(1,.5), family='Helvetica',
+       cex=1.5)
+}
+
+# Create the matrix and get the column dendrogram for the heatmap from it.
+m = structure(as.matrix(fitness_med[, -1:-2]),
+              dimnames=list(unlist(fitness_med[, 'strain']),
+                            unlist(names(fitness_med)[-1:-2])))
+
+col_dendro = as.dendrogram(hclust(dist(t(m))))
+
+# And make the plot....
+pdf(file="figures/FigX_heatmap_Phylo.pdf",width = 5,height=8, useDingbats=FALSE)
+heatmap.phylo(x = m, Rowp = tree, Colp = as.phylo(as.hclust(col_dendro)))
+dev.off()
+
+l = length(seq(-8, 3.9, 0.1))
+pal = colorRampPalette(c('#2166ac','#92c5de', '#f7f7f7', '#b2182b'))(l)
+
+pdf(file="figures/FigX_heatmap_legend.pdf",height = 3, width = 6)
+legend_image <- as.raster(matrix(pal, nrow=1))
+plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '')
+#text(y=-0.2, x = seq(0,2,l=4), labels = seq(-8,4,l=4))
+rasterImage(legend_image, 0, 0, 2,2)
+dev.off()
