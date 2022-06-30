@@ -1,7 +1,6 @@
-# Code to accompany ""
-# By:
-
-getwd()
+# Code to accompany "Host-associated rhizobial fitness: Dependence on nitrogen, density, community complexity, and legume genotype"
+# Liana T. Burghardt,a,b,#,* Brendan Epstein,a Michelle Hoge,a Diana Trujillo,c and Peter Tiffina 
+# Published in Applied Environmental Microbiology
 
 #### Load packages & color schemes####
 library(ggplot2)
@@ -15,7 +14,7 @@ mycols<-c("#d73027","#fc8d59","#4575b4","#91bfdb")
 # This is a 119 rows each of which represent a set of pooled nodules sampled from Medicago
 # There are 69 Columns the first is a concatonated sample name
 # Community_Host_TrtRep (e.g C68_A17_L1)
-# Ensifer community is one of six communities: C68, C8, C3, MK,KH, HM
+# Sinorhizobium community is one of six communities: C68, C8, C3, MK,KH, HM
 # Host is one of two genotypes: A17 or R108
 # Treatments: X (high density, No Nitrogen), L (low density, No Nitrogen), N (high density + Nitrogen), LN (low density + Nitrogen)
 
